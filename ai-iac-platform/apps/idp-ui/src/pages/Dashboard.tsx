@@ -82,6 +82,7 @@ export default function Dashboard() {
           breakdown: data.cost?.breakdown || {},
           recommendations: data.cost?.recommendations || [],
         },
+        fullResponse: data, // Store full response for file tree
       });
 
       setCurrentStep(GENERATION_STEPS.length - 1);
@@ -183,6 +184,7 @@ export default function Dashboard() {
             terraformCode={results.terraformCode}
             securityReport={results.securityReport}
             costEstimate={results.costEstimate}
+            fullResponse={results.fullResponse}
           />
         )}
 

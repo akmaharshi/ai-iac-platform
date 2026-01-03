@@ -1,23 +1,30 @@
 import { useState } from 'react';
-import { Code, Shield, DollarSign, Download, Copy, Check } from 'lucide-react';
+import { Code, Shield, DollarSign, Download, Copy, Check, FolderTree, FileCode } from 'lucide-react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import FileTree from './FileTree';
+import { buildTerraformFileTree, downloadFile, downloadAllFiles } from '../utils/fileTreeBuilder';
 
 interface ResultsDisplayProps {
   terraformCode: string;
   securityReport: any;
   costEstimate: any;
+  fullResponse?: any;
 }
 
-export default function ResultsDisplay({ terraformCode, securityReport, costEstimate }: ResultsDisplayProps) {
-  const [activeTab, setActiveTab] = useState<'code' | 'security' | 'cost'>('code');
+export default function ResultsDisplay({ terraformCode, securityReport, costEstimate, fullResponse }: ResultsDisplayProps) {
+  const [activeTab, setActiveTab] = useState<'structure' | 'code' | 'security' | 'cost'>('structure');
   const [copied, setCopied] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<{ content: string; name: string } | null>(null);
 
   const tabs = [
-    { id: 'code', name: 'Terraform Code', icon: Code },
+    { id: 'structure', name: 'File Structure', icon: FolderTree },
+    { id: 'code', name: 'main.tf', icon: FileCode },
     { id: 'security', name: 'Security Report', icon: Shield },
     { id: 'cost', name: 'Cost Estimate', icon: DollarSign },
   ];
+
+  const fileTree = buildTerraformFileTree(fullResponse || { terraform_code: terraformCode });
 
   const handleCopy = () => {
     navigator.clipboard.writeText(terraformCode);
@@ -26,13 +33,15 @@ export default function ResultsDisplay({ terraformCode, securityReport, costEsti
   };
 
   const handleDownload = () => {
-    const blob = new Blob([terraformCode], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'main.tf';
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadFile(terraformCode, 'main.tf');
+  };
+
+  const handleDownloadAll = () => {
+    downloadAllFiles(fileTree);
+  };
+
+  const handleFileClick = (content: string, fileName: string) => {
+    setSelectedFile({ content, name: fileName });
   };
 
   return (
@@ -59,6 +68,66 @@ export default function ResultsDisplay({ terraformCode, securityReport, costEsti
           })}
         </nav>
       </div>
+
+      {activeTab === 'structure' && (
+        <div className="space-y-4">
+          <div className="flex justify-between items-center mb-4">
+            <h4 className="text-lg font-semibold text-gray-900">Terraform Project Structure</h4>
+            <button
+              onClick={handleDownloadAll}
+              className="btn-primary flex items-center space-x-2 text-sm"
+            >
+              <Download className="h-4 w-4" />
+              <span>Download All Files</span>
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {/* File Tree */}
+            <div>
+              <h5 className="text-sm font-medium text-gray-700 mb-2">Project Files</h5>
+              <FileTree node={fileTree} onFileClick={handleFileClick} />
+            </div>
+
+            {/* File Preview */}
+            <div>
+              <h5 className="text-sm font-medium text-gray-700 mb-2">
+                {selectedFile ? `Preview: ${selectedFile.name}` : 'Select a file to preview'}
+              </h5>
+              {selectedFile ? (
+                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                  <SyntaxHighlighter
+                    language="hcl"
+                    style={vscDarkPlus}
+                    customStyle={{
+                      margin: 0,
+                      fontSize: '13px',
+                      maxHeight: '500px',
+                    }}
+                    showLineNumbers
+                  >
+                    {selectedFile.content}
+                  </SyntaxHighlighter>
+                </div>
+              ) : (
+                <div className="border border-gray-200 rounded-lg p-8 text-center bg-gray-50">
+                  <FolderTree className="h-12 w-12 text-gray-400 mx-auto mb-3" />
+                  <p className="text-gray-500">Click on a file to view its content</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-6 bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <h5 className="font-semibold text-blue-900 mb-2">📁 Modular Terraform Structure</h5>
+            <p className="text-sm text-blue-800">
+              Your infrastructure code is organized into modules following Terraform best practices.
+              Each module is self-contained with its own variables, outputs, and resources.
+            </p>
+          </div>
+        </div>
+      )}
 
       {activeTab === 'code' && (
         <div className="space-y-4">
