@@ -5,3 +5,4 @@ numpy
 networkx
 pillow
 python-multipart
+python-magic
