@@ -225,8 +225,26 @@ make ui-install         # Install dependencies
 make ui-dev             # Start dev server
 make ui-build           # Production build
 
-# Cleanup
+# Utilities
+make health             # Check service health
+make debug              # Run diagnostics
 make clean              # Stop all services
+```
+
+### 🔄 Rebuilding After Updates
+
+After pulling OCR enhancements or other backend changes:
+
+```bash
+# Stop current services
+make backend-down
+
+# Rebuild with new dependencies (Tesseract OCR, pytesseract)
+make backend-rebuild
+
+# Verify OCR is working
+make backend-logs
+# Look for: "Successfully loaded Tesseract OCR" or similar
 ```
 
 ---
@@ -249,6 +267,12 @@ docker-compose down && docker-compose up --build
 1. Max file size: 10MB
 2. Supported formats: PNG, JPEG, .drawio, .json
 3. Check backend logs for errors
+
+### OCR not detecting services
+1. Ensure diagram has clear, readable text labels
+2. Check if Tesseract OCR is installed: `docker exec -it vision-ai tesseract --version`
+3. View OCR output in logs: Look for "Extracted text from image" messages
+4. Fallback: System will use basic detection if OCR fails
 
 ---
 
