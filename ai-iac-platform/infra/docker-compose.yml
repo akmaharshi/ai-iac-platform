@@ -3,20 +3,40 @@ version: "3.9"
 services:
   vision-ai:
     build: ../services/vision-ai
+    container_name: vision-ai
     ports:
       - "8001:8000"
+    networks:
+      - iac-network
 
   api-gateway:
     build: ../apps/api-gateway
+    container_name: api-gateway
     ports:
       - "8000:8000"
     depends_on:
       - vision-ai
     volumes:
       - ./generated:/tmp/ai-iac
+    networks:
+      - iac-network
+    environment:
+      - VISION_AI_URL=http://vision-ai:8000/analyze
+
   terraform-runner:
     build:
       context: ../services/terraform-runner
+    container_name: terraform-runner
     volumes:
       - ./generated:/tmp/ai-iac
+    networks:
+      - iac-network
+
+networks:
+  iac-network:
+    driver: bridge
+
+volumes:
+  generated:
+    driver: local
 
