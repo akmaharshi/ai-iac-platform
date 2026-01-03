@@ -12,14 +12,15 @@
 ## ✨ Features
 
 ### 📁 Multi-Format Diagram Support
-- **PNG/JPEG Images** - AI-powered vision analysis
+- **PNG/JPEG Images** - OCR-powered text extraction with intelligent service detection
 - **draw.io** (.drawio, .xml) - Direct XML parsing
 - **Lucidchart** (.json) - JSON format support
+- **Automatic Service Recognition** - Detects 30+ cloud services from diagram labels
 
 ### ☁️ Multi-Cloud Infrastructure
-- ✅ **AWS** - VPC, EKS, ALB, EC2, RDS, S3, Lambda
-- ✅ **Azure** - VNet, AKS, VM
-- ✅ **GCP** - GKE, Compute Engine, Cloud Storage
+- ✅ **AWS** - VPC, Subnets, EC2, EKS, ECS, Lambda, ALB/NLB, RDS, DynamoDB, S3, IAM, Security Groups, CloudWatch, SNS, SQS, and more
+- ✅ **Azure** - VNet, AKS, VM, SQL Database, Storage
+- ✅ **GCP** - VPC, GKE, Compute Engine, Cloud SQL, Cloud Storage
 
 ### 🏗️ Production-Ready Terraform
 - **Modular Structure** - Separate modules for each resource
@@ -97,8 +98,8 @@ Choose your target cloud platform:
 ### 3️⃣ Generate Infrastructure Code
 
 The platform will:
-1. ⚙️ **Analyze** your diagram using AI
-2. 🏗️ **Generate** modular Terraform code
+1. ⚙️ **Analyze** your diagram using OCR and intelligent service detection
+2. 🏗️ **Generate** modular Terraform code based on detected services
 3. 🔒 **Scan** for security issues (coming soon)
 4. 💰 **Estimate** infrastructure costs (coming soon)
 
@@ -148,6 +149,31 @@ terraform/
 │  Port: 8001    │ │                 │ │                  │
 └────────────────┘ └─────────────────┘ └──────────────────┘
 ```
+
+### 🔍 Intelligent Diagram Scanning
+
+The Vision AI service uses multiple techniques to detect cloud services:
+
+1. **OCR Text Extraction** (PNG/JPEG)
+   - Uses Tesseract OCR to extract text from diagram images
+   - Identifies service labels, annotations, and descriptions
+
+2. **Keyword Pattern Matching**
+   - Matches extracted text against 30+ cloud service patterns
+   - Supports variations (e.g., "EKS", "Elastic Kubernetes Service", "K8s")
+
+3. **Supported Services**
+   - **Networking**: VPC, Subnets, Internet Gateway, NAT Gateway, Security Groups
+   - **Compute**: EC2, EKS, ECS, Lambda, Auto Scaling Groups
+   - **Load Balancing**: ALB, NLB, ELB
+   - **Database**: RDS, DynamoDB, ElastiCache
+   - **Storage**: S3, EBS, EFS
+   - **Security**: IAM, WAF, Security Groups
+   - **Monitoring**: CloudWatch, SNS, SQS
+
+4. **Fallback Detection**
+   - If OCR is unavailable, uses image analysis (color, size, complexity)
+   - Provides default infrastructure when no services are detected
 
 ---
 
